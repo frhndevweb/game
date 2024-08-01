@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permainan Otak Programmer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7f9;
+            color: #333;
+        }
+        h1 {
+            color: #222;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        pre {
+            background-color: #2e3440;
+            color: #d8dee9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        input[type="text"] {
+            padding: 14px;
+            font-size: 1em;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            width: calc(100% - 24px);
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 14px 28px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            background-color: #007bff;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #feedback {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        #feedback.correct {
+            color: #28a745;
+        }
+        #feedback.incorrect {
+            color: #dc3545;
+        }
+        .hidden {
+            display: none;
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        .next-button, .home-button {
+            background-color: #28a745;
+        }
+        .home-button {
+            background-color: #007bff;
+        }
+        .next-button:hover {
+            background-color: #218838;
+        }
+        .home-button:hover {
+            background-color: #0056b3;
+        }
+        @media (max-width: 600px) {
+            input[type="text"] {
+                width: calc(100% - 20px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="main-page" class="container">
+        <h1>Selamat datang di Permainan Otak Programmer!</h1>
+        <p>Siapkan buku/kertas untuk mencatat setiap soal dan jawaban agar bisa mengulangi kembali</p>
+        <p>Untuk memulai, klik tombol di bawah ini untuk melanjutkan ke level pertama.</p>
+        <button class="start-button" onclick="showLevel(1)">Mulai Level 1</button>
+    </div>
+
+    <div id="congratulations-page" class="hidden container">
+        <h1>Selamat!</h1>
+        <p>Anda telah menyelesaikan semua level!</p>
+        <p>Terimakasih, semoga bermanfaat ya^^</p>
+        <button class="home-button" onclick="showLevel(1)">Kembali ke Beranda</button>
+    </div>
+
+    <div id="level-container"></div>
+
+    <script>
+        const levels = [
+            { code: `function greet(name) { return "Hello, " + name + "!"; }\nconsole.log(greet("World"));`, answer: 'Hello, World!' },
+            { code: `const numbers = [1, 2, 3, 4, 5];\nconst doubled = numbers.map(x => x * 2);\nconsole.log(doubled);`, answer: '[2, 4, 6, 8, 10]' },
+            { code: `function sum(a, b) { return a + b; }\nconsole.log(sum(5, 7));`, answer: '12' },
+            { code: `const person = { name: "John", age: 30 };\nconsole.log(person.name);`, answer: 'John' },
+            { code: `const fruits = ["apple", "banana", "cherry"];\nconsole.log(fruits[1]);`, answer: 'banana' },
+            { code: `let num = 10;\nnum += 5;\nconsole.log(num);`, answer: '15' },
+            { code: `function isEven(num) { return num % 2 === 0; }\nconsole.log(isEven(4));`, answer: 'true' },
+            { code: `const array = [1, 2, 3, 4];\nconsole.log(array.reduce((acc, val) => acc + val, 0));`, answer: '10' },
+            { code: `const x = 10;\nconst y = 20;\nconsole.log(x * y);`, answer: '200' },
+            { code: `const arr = [1, 2, 3, 4, 5];\nconst result = arr.filter(num => num > 2);\nconsole.log(result);`, answer: '[3, 4, 5]' }
+        ];
+
+        function generateLevelHtml(level, code, answer) {
+            return `
+                <div id="level-${level}" class="hidden container">
+                    <h1>Level ${level}</h1>
+                    <p>Pecahkan kode berikut:</p>
+                    <pre><code>${code}</code></pre>
+                    <p>Apa output dari kode di atas?</p>
+                    <input type="text" id="answer-${level}" placeholder="Masukkan jawaban Anda">
+                    <button onclick="checkAnswer(${level}, '${answer}')">Kirim Jawaban</button>
+                    <p id="feedback-${level}" class="feedback"></p>
+                    ${level < 10 ? `<button class="next-button hidden" onclick="showLevel(${level + 1})">Ke Level ${level + 1}</button>` : ''}
+                </div>
+            `;
+        }
+
+        document.getElementById('level-container').innerHTML = levels.map((level, index) => generateLevelHtml(index + 1, level.code, level.answer)).join('');
+
+        function showLevel(level) {
+            document.querySelectorAll('.container').forEach(container => container.classList.add('hidden'));
+            if (level === 'congratulations') {
+                document.getElementById('congratulations-page').classList.remove('hidden');
+            } else {
+                document.getElementById(`level-${level}`).classList.remove('hidden');
+            }
+        }
+
+        function checkAnswer(level, correctAnswer) {
+            const userAnswer = document.getElementById(`answer-${level}`).value;
+            const feedback = document.getElementById(`feedback-${level}`);
+            const nextButton = document.querySelector(`#level-${level} .next-button`);
+            
+            if (userAnswer.trim() === correctAnswer) {
+                feedback.textContent = "Jawaban benar!";
+                feedback.className = "feedback correct";
+                if (level === 10) {
+                    showLevel('congratulations');
+                } else if (nextButton) {
+                    nextButton.classList.remove('hidden');
+                }
+            } else {
+                feedback.textContent = "Jawaban salah. Coba lagi!";
+                feedback.className = "feedback incorrect";
+                if (nextButton) {
+                    nextButton.classList.add('hidden');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
